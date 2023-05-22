@@ -1,0 +1,53 @@
+1) Open Bash fille:
+	command: sudo nano ~/.bashrc
+
+2) Scroll down till the end
+
+3) Paste these lines:
+	export LD_LIBRARY_PATH=$HADOOP_HOME/lib:$LD_LIBRARY_PATH
+	export LD_LIBRARY_PATH=$HADOOP_HOME/include:$LD_LIBRARY_PATH
+	export HDFS_LIBRARY=$HADOOP_HOME/lib/native
+	export CLASSPATH=$($HADOOP_HOME/bin/hadoop classpath --glob)
+
+4) Press Ctrl + O
+
+5) Press Enter
+
+6) Press Ctrl + X
+	This will close the editor
+
+7) type this command: 
+	source ~/.bashrc
+
+8) Open CMakeLists.txt file
+
+9) Paste these lines: *(Make sure to replace /home/abdullah/hadoop-3.3.5/ with the local location where you have extracted the tar file of hadoop)*
+	set(ENV{CLASSPATH} "$ENV{CLASSPATH}:${HADOOP_HOME}/share/hadoop/common/*:${HADOOP_HOME}/share/hadoop/common/lib/*:${HADOOP_HOME}/share/hadoop/hdfs/*:${HADOOP_HOME}/share/hadoop/hdfs/lib/*:${HADOOP_HOME}/share/hadoop/yarn/*:${HADOOP_HOME}/share/hadoop/yarn/lib/*:${HADOOP_HOME}/share/hadoop/mapreduce/*:${HADOOP_HOME}/share/hadoop/mapreduce/lib/*")
+	set(HDFS_LIBRARY "/home/abdullah/hadoop-3.3.5/lib/native")
+	find_library(HDFS_LIBRARY NAMES hdfs)
+	set(HADOOP_INCLUDE_DIRS "/home/abdullah/hadoop-3.3.5/include")
+	set(HADOOP_LIBRARY_DIRS "/home/abdullah/hadoop-3.3.5/lib")
+	set(HADOOP_LIBRARIES "hdfs")
+	link_directories("/home/abdullah/hadoop-3.3.5/lib/native")
+	include_directories(${HADOOP_INCLUDE_DIRS})
+	link_directories(${HADOOP_LIBRARY_DIRS})
+	message(STATUS "Hadoop 3.3.5 is linked")
+
+10) In this file there's a loop at the end
+	->navigate to target_link_libraries function
+		->add this variable to function: ${HADOOP_LIBRARIES}
+		->Your loop would look something like this:
+			foreach(_target
+			  master slave)
+			  add_executable(${_target} "${_target}.cc"
+			    ${hw_proto_srcs}
+			    ${hw_grpc_srcs})
+			  target_link_libraries(${_target}
+			    ${_REFLECTION}
+			    ${_GRPC_GRPCPP}
+			    ${_PROTOBUF_LIBPROTOBUF}
+			    ${HADOOP_LIBRARIES})
+			endforeach()
+
+11) In the main function of both master.cpp and slave.cpp, paste this line of code at the start (Make sure to replace /home/abdullah/hadoop-3.3.5 with your local directory):
+	setenv("CLASSPATH", "/home/abdullah/hadoop-3.3.5/etc/hadoop:/home/abdullah/hadoop-3.3.5/share/hadoop/common/*:/home/abdullah/hadoop-3.3.5/share/hadoop/common/lib/*:/home/abdullah/hadoop-3.3.5/share/hadoop/hdfs/*:/home/abdullah/hadoop-3.3.5/share/hadoop/hdfs/lib/*:/home/abdullah/hadoop-3.3.5/share/hadoop/mapreduce/*:/home/abdullah/hadoop-3.3.5/share/hadoop/mapreduce/lib/*", 1);

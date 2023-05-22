@@ -1,0 +1,42 @@
+syntax = "proto3";
+
+option java_package = "ex.grpc";
+
+package masterslave;
+
+service Ping{
+
+    rpc sendRequest (Signal) returns (Reply) {}
+    rpc map (Data) returns (Reply) {}
+    rpc reduce (Data) returns (Reply) {}
+
+}
+
+
+// The request message containing requested numbers
+message Master {
+    int32 control_interval = 1;
+    int32 timeout_interval = 2;
+    repeated string addresses=3;
+    repeated string status=4;
+    repeated string taskstatus=5;
+    repeated string taskid=6;
+    int32 slavecount=7;
+}
+
+message Slave{
+    string address=1;
+}
+
+message Data{
+    repeated string data=1;
+}
+
+message Signal{
+    string signal=1;
+}
+
+
+message Reply {
+    string result = 1;
+}
